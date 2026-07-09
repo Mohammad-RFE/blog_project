@@ -1,0 +1,181 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action_title }}{% endblock %}
+
+{% block content %}
+
+    <div class="heading-page header-text">
+        <section class="page-heading">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="text-content">
+                            <h4>Dashboard</h4>
+                            <h2>{{ action_title }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <section class="blog-posts grid-system" style="margin-top: 150px;">
+        <div class="container">
+            <div class="row justify-content-center">
+
+                <div class="col-lg-8 col-md-10 col-sm-12">
+
+                    <div class="blog-post"
+                         style="padding: 40px; background-color: #fff; box-shadow: 0px 0px 20px rgba(0,0,0,0.06); border-radius: 4px; margin-bottom: 40px;">
+                        <div class="down-content border-0" style="padding: 0;">
+
+                            <form method="POST" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="row">
+
+                                    <div class="col-md-12 form-group" style="margin-bottom: 25px;">
+                                        <label style="font-weight: 600; color: #4a4a4a; margin-bottom: 8px; display: block;">Article
+                                            Title</label>
+                                        {{ form.title }}
+                                        <small class="text-danger">{{ form.title.errors }}</small>
+                                    </div>
+
+                                    <div class="col-md-12 form-group" style="margin-bottom: 25px;">
+                                        <label style="font-weight: 600; color: #4a4a4a; margin-bottom: 8px; display: block;">Cover
+                                            Image</label>
+
+                                        <div id="cover-upload-container" class="p-4 text-center"
+                                             style="background: #ffffff; border: 2px dashed #ced4da; border-radius: 8px; position: relative; transition: 0.3s;">
+
+                                            {% if article and article.cover %}
+                                                <div id="current-image-box"
+                                                     class="d-flex flex-column align-items-center mb-3">
+                                                    <img src="{{ article.cover.url }}" id="preview-cover-img"
+                                                         style="width: 180px; height: 130px; object-fit: cover; border-radius: 6px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 15px;">
+                                                    <p class="text-muted small mb-3">Current Cover Image</p>
+
+                                                    <div class="d-flex gap-2 justify-content-center">
+                                                        <button type="button" id="change-image-trigger-btn"
+                                                                class="btn btn-sm btn-outline-secondary px-3 border-0"
+                                                                style="border-radius: 20px; font-weight: bold; font-size: 12px; margin-right: 5px;">
+                                                            <i class="fa fa-refresh"></i> Change Image
+                                                        </button>
+
+                                                        <button type="button"
+                                                                class="btn btn-sm btn-outline-danger px-3 border-0"
+                                                                data-toggle="modal" data-target="#deleteImageModal"
+                                                                style="border-radius: 20px; font-weight: bold; font-size: 12px;">
+                                                            <i class="fa fa-trash"></i> Remove Image
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            {% endif %}
+
+                                            <div id="upload-file-box"
+                                                 class="{% if article and article.cover %}d-none{% endif %}"
+                                                 style="padding: 10px 0; cursor: pointer;">
+                                                <div id="dropzone-clickable-area">
+                                                    <i class="fa fa-cloud-upload text-muted"
+                                                       style="font-size: 40px; margin-bottom: 10px; color: #f48840 !important;"></i>
+                                                    <p class="mb-2"
+                                                       style="font-weight: 500; color: #555; font-size: 14px;">
+                                                        Drag & Drop your image here or Click to browse</p>
+                                                </div>
+
+                                                <input type="file" name="cover" id="id_cover" class="form-control-file"
+                                                       style="position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden;">
+
+                                                <div id="chosen-file-name"
+                                                     class="text-success small mt-2 font-weight-bold"
+                                                     style="font-size: 13px; margin-bottom: 10px;"></div>
+
+                                                {% if article and article.cover %}
+                                                    <button type="button" id="cancel-change-image-btn"
+                                                            class="btn btn-sm btn-link"
+                                                            style="color: #6c757d; font-size: 12px; font-weight: bold; text-decoration: none; position: relative; z-index: 10;">
+                                                        <i class="fa fa-times"></i> Cancel Change
+                                                    </button>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+
+                                        {% if form.cover.errors %}
+                                            {% for error in form.cover.errors %}
+                                                <div style="color: #e74c3c; font-size: 13px; margin-top: 5px; font-weight: 500;">
+                                                    * {{ error }}</div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+
+                                    <div class="col-md-6 form-group" style="margin-bottom: 25px;">
+                                        <label style="font-weight: 600; color: #4a4a4a; margin-bottom: 8px; display: block;">Category</label>
+                                        {{ form.category }}
+                                        <small class="text-danger">{{ form.category.errors }}</small>
+                                    </div>
+
+                                    <div class="col-md-6 form-group" style="margin-bottom: 25px;">
+                                        <label style="font-weight: 600; color: #4a4a4a; margin-bottom: 8px; display: block;">Tags
+                                            (Hold Ctrl to select)</label>
+                                        {{ form.tags }}
+                                        <small class="text-danger">{{ form.tags.errors }}</small>
+                                    </div>
+
+                                    <div class="col-md-12 form-group" style="margin-bottom: 30px;">
+                                        <label style="font-weight: 600; color: #4a4a4a; margin-bottom: 8px; display: block;">Content</label>
+                                        {{ form.body }}
+                                        <small class="text-danger">{{ form.body.errors }}</small>
+                                    </div>
+
+                                    <div class="col-md-12">
+                                        <button type="submit"
+                                                style="background-color: #f48840; color: #fff; padding: 12px 30px; border: none; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.3s; cursor: pointer; border-radius: 4px; width: 100%;">
+                                            {{ action_title }}
+                                        </button>
+                                    </div>
+
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <div class="modal fade" id="deleteImageModal" tabindex="-1" role="dialog" aria-hidden="true"
+         style="z-index: 99999;">
+        <div class="modal-dialog modal-dialog-centered" role="document" style="max-width: 400px;">
+            <div class="modal-content"
+                 style="border-radius: 10px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+                <div class="modal-body text-center p-4">
+                    <i class="fa fa-exclamation-circle text-danger mb-3" style="font-size: 48px; color: #e74c3c;"></i>
+                    <h5 class="mb-2" style="font-weight: bold; color: #20232e;">Delete Cover Image?</h5>
+                    <p class="text-muted small" style="font-size: 13px;">Are you sure you want to remove this cover?
+                        Your article will use the default cover instead.</p>
+                    <div class="d-flex justify-content-center mt-4">
+                        <button type="button" class="btn btn-light px-4 mr-2" data-dismiss="modal"
+                                style="border-radius: 5px; font-weight: 600; font-size: 13px;">Cancel
+                        </button>
+                        <button type="button" id="confirm-delete-img-btn"
+                                data-url="{% url 'delete_article_cover' article.id|default:0 %}"
+                                class="btn btn-danger px-4"
+                                style="border-radius: 5px; font-weight: 600; font-size: 13px; background-color: #e74c3c; border: none;">
+                            Yes, Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const DjangoCoverCSRFToken = "{{ csrf_token }}";
+    </script>
+
+    <script src="{% static 'js/article_delete_picture.js' %}"></script>
+
+{% endblock %}

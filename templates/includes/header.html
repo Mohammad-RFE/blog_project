@@ -1,0 +1,66 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg">
+    <div class="container">
+        <a class="navbar-brand" href="{% url 'home' %}"><h2>Stand Blog<em>.</em></h2></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"
+                aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarResponsive">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'home' %}">Home
+                        <span class="sr-only">(current)</span>
+                    </a>
+                </li>
+                <li class="nav-item {% if request.resolver_match.url_name == 'about-us' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'about-us' %}">About Us</a>
+                </li>
+                <li class="nav-item {% if request.resolver_match.url_name == 'all posts' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'all posts' %}">Blog Entries</a>
+                </li>
+
+                <li class="nav-item {% if request.resolver_match.url_name == 'contact_us' %}active{% endif %}">
+                    <a class="nav-link" href="{% url 'contact_us' %}">Contact Us</a>
+                    {% if user.is_authenticated %}
+
+
+                        <li class="nav-item">
+                            <a href="{% url 'user panel' %}">
+      <span class="nav-link" style="color: #f5a425; font-weight: bold;">
+          {% if user.get_full_name %}
+              {{ user.get_full_name }}
+          {% else %}
+              {{ user.username }}
+              {% endif %}
+      </span></a>
+
+                        </li>
+                        <div class="user-header-profile d-inline-block align-middle">
+        <a href="{% url 'user panel' %}">
+            {% if user.profile %}
+                <img src="{{ user.profile.url }}" alt="{{ user.username }}" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #f5a425;">
+            {% else %}
+                <img src="{% static 'images/default-profile.jpg' %}" alt="Default Profile" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover; border: 2px solid #ccc;">
+            {% endif %}
+        </a>
+    </div>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'logout' %}">Logout</a>
+                        </li>
+
+                    {% else %}
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'register' %}">Register</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'login' %}">Login</a>
+                        </li>
+
+                    {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+

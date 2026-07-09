@@ -1,0 +1,18 @@
+# Environments
+venv/
+
+# IDEs and Editors
+.idea/
+
+# Databases
+db.sqlite3
+
+# Media / Uploads
+media/
+
+# Python compiled files
+*.pyc
+__pycache__/
+
+# Environments variables (if you create .env later)
+.env

@@ -1,0 +1,33 @@
+{% if articles.has_other_pages %}
+    <div class="col-lg-12">
+        <ul class="page-numbers">
+            {% if articles.has_previous %}
+                <li>
+                    <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% elif request.GET.tag %}tag={{ request.GET.tag }}&{% elif request.GET.category %}category={{ request.GET.category }}&{% endif %}page={{ articles.previous_page_number }}">
+                        <i class="fa fa-angle-double-left"></i>
+                    </a>
+                </li>
+            {% endif %}
+
+            {% for num in articles.paginator.page_range %}
+                {% if articles.number == num %}
+                    <li class="active"><a href="#/">{{ num }}</a></li>
+                {% else %}
+                    <li>
+                        <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% elif request.GET.tag %}tag={{ request.GET.tag }}&{% elif request.GET.category %}category={{ request.GET.category }}&{% endif %}page={{ num }}">
+                            {{ num }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if articles.has_next %}
+                <li>
+                    <a href="?{% if request.GET.q %}q={{ request.GET.q }}&{% elif request.GET.tag %}tag={{ request.GET.tag }}&{% elif request.GET.category %}category={{ request.GET.category }}&{% endif %}page={{ articles.next_page_number }}">
+                        <i class="fa fa-angle-double-right"></i>
+                    </a>
+                </li>
+            {% endif %}
+        </ul>
+    </div>
+{% endif %}

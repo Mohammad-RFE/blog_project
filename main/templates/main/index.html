@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <!-- Page Content -->
+    <!-- Banner Starts Here -->
+    <div class="main-banner header-text">
+        <div class="container-fluid">
+            <div class="owl-banner owl-carousel">
+                {% for article in banner_articles %}
+                    <div class="item">
+                        {% if article.cover %}
+                            <img src="{{ article.cover.url }}" alt="">
+                            {% else %}
+                            <img src="{% static "images/default-cover.jpg" %}" alt="">
+                        {% endif %}
+                        <div class="item-content">
+                            <div class="main-content">
+                                <div class="meta-category ">
+                                    <span>{{ article.category.title }}</span>
+                                </div>
+                                <a href="{% url 'article detail' article.slug %}"><h4>{{ article.title }}</h4></a>
+                                <ul class="post-info">
+                                    <li><a href="
+                                            {% if request.user.is_authenticated and request.user == article.author %}{% url 'user panel' %}{% else %}{% url 'user public profile' article.author.username %}{% endif %}">{{ article.author.username }}</a>
+                                    </li>
+                                    <li><a href="#">{{ article.created_at|date:"M d, Y" }}</a></li>
+                                    <li>
+                                        <a href="{% url 'all posts' %}?tag={{ article.tags.first.slug }}">{{ article.tags.first }}</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- Banner Ends Here -->
+
+
+
+
+    <section class="blog-posts">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="all-blog-posts">
+                        <div class="row">
+                            {% for article in main_articles %}
+                                <div class="col-lg-6 col-md-6 col-sm-12">
+                                    <div class="blog-post">
+                                        <div class="blog-thumb">
+                                            {% if article.cover %}
+                                            <img src="{{ article.cover.url }}" alt="">
+                                                {% else %}
+                                                <img src="{% static "images/default-cover.jpg" %}" alt="">
+                                            {% endif %}
+                                        </div>
+                                        <div class="down-content">
+                                            <span>{{ article.category.title }}</span>
+                                            <a href="{% url 'article detail' article.slug %}">
+                                                <h4>{{ article.title }}</h4>
+                                            </a>
+                                            <ul class="post-info">
+                                                <li><a href="
+                                                        {% if request.user.is_authenticated and request.user == article.author %}{% url 'user panel' %}{% else %}{% url 'user public profile' article.author.username %}{% endif %}">{{ article.author.username }}</a>
+                                                </li>
+                                                <li><a href="#">{{ article.created_at|date:"M d, Y" }}</a></li>
+                                                <li><a href="#">{{ article.comment_set.count }} comments</a></li>
+                                            </ul>
+                                            <p>{{ article.body|truncatewords:30 }}</p>
+                                            <div class="post-options">
+                                                <div class="row">
+                                                    <div class="col-6">
+                                                        <ul class="post-tags">
+                                                            <li><i class="fa fa-tags"></i></li>
+                                                            {% for tag in article.tags.all %}
+                                                                <li>
+                                                                    <a href="{% url 'all posts' %}?tag={{ tag.slug }}">{{ tag.title }}</a>
+                                                                    {% if not forloop.last %}, {% endif %}</li>
+                                                            {% empty %}
+                                                                <li>No Tags</li>
+                                                            {% endfor %}
+                                                        </ul>
+                                                    </div>
+                                                    <div class="col-6">
+                                                        <ul class="post-share">
+                                                            <li><i class="fa fa-share-alt"></i></li>
+                                                            <li><a href="#">Facebook</a>,</li>
+                                                            <li><a href="#"> Twitter</a></li>
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <div class="col-lg-12">
+                                <div class="main-button">
+                                    <a href="{% url 'all posts' %}">View All Posts</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

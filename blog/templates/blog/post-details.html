@@ -1,0 +1,289 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Article Details{% endblock %}
+{% block content %}
+    <!-- Page Content -->
+    <!-- Banner Starts Here -->
+    <div class="heading-page header-text">
+        <section class="page-heading">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="text-content">
+                            <h4>Post Details</h4>
+                            <h2>{{ article.title }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Banner Ends Here -->
+
+
+    <section class="blog-posts grid-system">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8">
+                    <div class="all-blog-posts">
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <div class="blog-post">
+                                    <div class="blog-thumb">
+                                        {% if article.cover %}
+                                            <img src="{{ article.cover.url }}" alt="">
+                                        {% else %}
+                                            <img src="{% static "images/default-cover.jpg" %}" alt="">
+                                        {% endif %}
+                                    </div>
+                                    <div class="down-content">
+                                        <span>{{ article.category.title }}</span>
+                                        <a href=""><h4>{{ article.title }}</h4></a>
+                                        <ul class="post-info">
+                                            <li>
+                                                <a href="
+
+
+
+
+
+
+
+
+                                                        {% if request.user.is_authenticated and request.user == article.author %}{% url 'user panel' %}{% else %}{% url 'user public profile' article.author.username %}{% endif %}">{{ article.author.username }}</a>
+                                            </li>
+                                            <li><a href="#">{{ article.created_at|date:"M d, Y" }}</a></li>
+                                            <li><a href="#">{{ article.comment_set.count }} comments</a></li>
+                                        </ul>
+                                        <p>{{ article.body }}</p>
+                                        <div class="post-options">
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <ul class="post-tags">
+                                                        <li><i class="fa fa-tags"></i></li>
+                                                        {% for tag in article.tags.all %}
+                                                            <li>
+                                                                <a href="{% url 'all posts' %}?tag={{ tag.slug }}">{{ tag.title }}</a>
+                                                                {% if not forloop.last %}, {% endif %}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                                <div class="col-6">
+                                                    <ul class="post-share">
+                                                        <li><i class="fa fa-share-alt"></i></li>
+                                                        <li><a href="#">Facebook</a>,</li>
+                                                        <li><a href="#"> Twitter</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="content">
+                                <ul>
+                                    {% for comment in article.comment_set.all %}
+                                        {% if comment.parent == None %}
+                                            <li style="width: 100%; display: block; clear: both; margin-bottom: 30px;">
+                                                <div class="author-thumb" style="float: left;">
+                                                    <a href="
+
+
+
+
+
+
+
+                                                            {% if request.user.is_authenticated and request.user == comment.user %}{% url 'user panel' %}{% else %}{% url 'user public profile' comment.user.username %}{% endif %}">
+                                                        {% if comment.user.profile %}
+
+                                                            <img src="{{ comment.user.profile.url }}" alt=""
+                                                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+
+                                                        {% else %}
+                                                            <img src="{% static 'images/default-profile.jpg' %}" alt=""
+                                                                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 50%;">
+                                                        {% endif %}
+                                                    </a>
+                                                </div>
+                                                <div class="right-content"
+                                                     style="display: block; overflow: hidden; padding-left: 20px;">
+                                                    <a href="
+
+
+
+
+
+
+
+                                                            {% if request.user.is_authenticated and request.user == comment.user %}{% url 'user panel' %}{% else %}{% url 'user public profile' comment.user.username %}{% endif %}">
+                                                        <h4 style="font-size: 15px; font-weight: bold; color: #20232e; margin-bottom: 5px;">
+                                                            {{ comment.user.username }}
+                                                            <span style="font-size: 12px; color: #999; font-weight: normal; margin-left: 10px;">{{ comment.created_at|date:"M d, Y" }}</span>
+                                                        </h4>
+                                                    </a>
+                                                    <p style="font-size: 14px; color: #4a4a4a; line-height: 24px; margin-bottom: 5px;">{{ comment.body }}</p>
+                                                    <button onclick="setReply('{{ comment.id }}', '{{ comment.user.username }}')"
+                                                            class="btn btn-sm p-0"
+                                                            style="color: #f5a425; font-size: 12px; font-weight: bold; border: none; background: none; text-transform: none !important;">
+                                                        Reply
+                                                    </button>
+                                                    <button type="button" class="btn btn-sm p-0 like-comment-btn"
+                                                            data-comment-id="{{ comment.id }}"
+                                                            data-url="{% url 'like_comment_ajax' comment.id %}"
+                                                            style="font-size: 12px; font-weight: bold; border: none; background: none; margin-left: 15px; color: #aaa;">
+                                                        <i class="fa fa-heart-o"></i>
+                                                        <span class="like-count">{{ comment.likes.count }}</span>
+                                                    </button>
+
+                                                    {% if request.user == comment.user %}
+                                                        <a href="{% url 'delete_comment' comment_id=comment.id %}"
+                                                           onclick="return confirm('Are you sure you want to delete this comment?')"
+                                                           style="color: #dc3545; font-size: 12px; font-weight: bold; margin-left: 15px; text-decoration: none;">Delete</a>
+                                                    {% endif %}
+                                                </div>
+                                            </li>
+                                            {% for reply in comment.replies.all %}
+                                                <li class="replied"
+                                                    style="width: 100%; display: block; clear: both; margin-bottom: 30px; padding-left: 70px;">
+                                                    <div class="author-thumb" style="float: left;">
+                                                        <a href="
+
+
+
+
+
+                                                                {% if request.user.is_authenticated and request.user == reply.user %}{% url 'user panel' %}{% else %}{% url 'user public profile' reply.user.username %}{% endif %}">
+                                                            {% if reply.user.profile %}
+                                                                <img src="{{ reply.user.profile.url }}" alt=""
+                                                                     style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%;">
+                                                            {% else %}
+                                                                <img src="{% static 'images/default-profile.jpg' %}"
+                                                                     alt=""
+                                                                     style="width: 40px; height: 40px; object-fit: cover; border-radius: 50%;">
+                                                            {% endif %}
+                                                        </a>
+                                                    </div>
+                                                    <div class="right-content"
+                                                         style="display: block; overflow: hidden; padding-left: 15px;">
+                                                        <h4 style="font-size: 14px; font-weight: bold; color: #20232e; margin-bottom: 5px;">
+                                                            <a href="
+
+
+
+
+
+                                                                    {% if request.user.is_authenticated and request.user == reply.user %}{% url 'user panel' %}{% else %}{% url 'user public profile' reply.user.username %}{% endif %}"
+                                                               style="color: #20232e;">
+                                                                {{ reply.user.username }}
+                                                            </a>
+                                                            <small style="color: #f5a425; font-size: 11px; font-weight: normal; margin-left: 5px; margin-right: 5px;">replied
+                                                                to @{{ comment.user.username }}</small>
+                                                            <span style="font-size: 11px; color: #999; font-weight: normal; margin-left: 5px;">{{ reply.created_at|date:"M d, Y" }}</span>
+                                                        </h4>
+                                                        <p style="font-size: 13px; color: #4a4a4a; line-height: 22px; margin-bottom: 5px;">{{ reply.body }}</p>
+
+                                                        <button onclick="setReply('{{ comment.id }}', '{{ reply.user.username }}')"
+                                                                class="btn btn-sm p-0"
+                                                                style="color: #f5a425; font-size: 12px; font-weight: bold; border: none; background: none; text-transform: none !important;">
+                                                            Reply
+                                                        </button>
+                                                        <button type="button" class="btn btn-sm p-0 like-comment-btn"
+                                                                data-comment-id="{{ reply.id }}"
+                                                                data-url="{% url 'like_comment_ajax' reply.id %}"
+                                                                style="font-size: 12px; font-weight: bold; border: none; background: none; margin-left: 15px; color: #aaa;">
+                                                            <i class="fa fa-heart-o"></i>
+                                                            <span class="like-count">{{ reply.likes.count }}</span>
+                                                        </button>
+
+                                                        {% if request.user == reply.user %}
+                                                            <a href="{% url 'delete_comment' comment_id=reply.id %}"
+                                                               onclick="return confirm('Are you sure you want to delete this reply?')"
+                                                               style="color: #dc3545; font-size: 12px; font-weight: bold; margin-left: 15px; text-decoration: none;">Delete</a>
+                                                        {% endif %}
+                                                    </div>
+                                                </li>
+                                            {% endfor %}
+                                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="col-lg-12 mt-5" id="comment-form-section">
+                                <div class="sidebar-item submit-comment">
+                                    {% if request.user.is_authenticated %}
+                                        <div class="sidebar-heading">
+                                            <h2 id="form-title">Your comment</h2>
+                                            <button id="cancel-reply-btn" onclick="cancelReply()"
+                                                    class="btn btn-sm btn-link text-danger p-0"
+                                                    style="display: none; font-size: 13px;">Cancel Reply
+                                            </button>
+                                        </div>
+                                        <div class="content">
+                                            <form action="{% url 'add_comment' article_id=article.id %}" method="POST">
+                                                {% csrf_token %}
+
+                                                <input type="hidden" name="parent_id" id="parent_id" value="">
+
+                                                <div class="row">
+                                                    <div class="col-lg-12">
+                                                        <fieldset>
+                                                        <textarea name="body" rows="6" id="comment-body"
+                                                                  placeholder="Type your comment here..." required
+                                                                  style="width: 100%; padding: 15px; border: 1px solid #ddd; margin-bottom: 20px; text-transform: none !important;"></textarea>
+                                                        </fieldset>
+                                                    </div>
+                                                    <div class="col-lg-12">
+                                                        <fieldset>
+                                                            <button type="submit" class="btn text-white"
+                                                                    style="background-color: #f5a425; font-weight: bold; padding: 12px 30px; border: none;">
+                                                                Submit
+                                                            </button>
+                                                        </fieldset>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    {% else %}
+                                        <div class="content text-center"
+                                             style="padding: 30px; background: #f7f7f7; border-radius: 5px;">
+                                            <h5 style="color: #20232e; margin-bottom: 15px; font-weight: bold;">You must
+                                                be
+                                                logged in to post a comment.</h5>
+                                            <a href="{% url 'login' %}" class="btn text-white"
+                                               style="background-color: #f5a425; font-weight: bold; padding: 10px 25px;">
+                                                Login to Your Account
+                                            </a>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="sidebar">
+                        {% include 'includes/sidebar-search-query.html' %}
+
+                        {% include 'includes/sidebar-recent-posts.html' %}
+
+                        {% include 'includes/sidebar-categories.html' %}
+
+                        {% include 'includes/sidebar-tags.html' %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="{% static 'js/comment_reply.js' %}"></script>
+
+    <script>
+        window.DjangoCommentCSRFToken = "{{ csrf_token }}";
+        window.DjangoUserIsAuthenticated = "{{ request.user.is_authenticated }}";
+        window.DjangoUserLikedComments = {{ user_liked_comment_ids|safe|default:"[]" }};
+    </script>
+
+    <script src="{% static 'js/comment_like.js' %}"></script>
+{% endblock %}
