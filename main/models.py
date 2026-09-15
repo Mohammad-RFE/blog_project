@@ -1,6 +1,10 @@
+# Models for handling general site contact form messages
 from django.db import models
 
 class ContactMessage(models.Model):
+    """
+    Stores feedback and inquiries sent by visitors via the Contact Us form.
+    """
     subject = models.CharField(max_length=200)
     body = models.TextField()
     email = models.EmailField()

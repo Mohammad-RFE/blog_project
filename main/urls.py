@@ -1,3 +1,4 @@
+# URL routes configuration for main pages (Home, About, Contact)
 from django.urls import path
 from . import views
 urlpatterns = [

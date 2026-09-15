@@ -1,3 +1,4 @@
+# Views handling user authentication, profile management, public profiles, and AJAX avatar removal
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Account
 from django.http import JsonResponse
@@ -10,6 +11,9 @@ from django.core.paginator import Paginator
 
 
 def register_page(request):
+    """
+    Handles user registration and logs the user in immediately upon successful account creation.
+    """
     if request.method == "POST":
         form = CustomRegisterForm(request.POST)
         if form.is_valid():
@@ -22,6 +26,9 @@ def register_page(request):
     return render(request, "authentication/register.html", {"form": form})
 
 def login_page(request):
+    """
+    Authenticates user credentials and establishes a session.
+    """
     if request.method == 'POST':
         form = CustomLoginForm(request, data=request.POST)
 
@@ -36,6 +43,9 @@ def login_page(request):
 
 
 def logout_page(request):
+    """
+    Terminates the user session and redirects to the home page.
+    """
     logout(request)
     return redirect("home")
 
@@ -43,6 +53,9 @@ def logout_page(request):
 User = get_user_model()
 @login_required
 def user_panel(request):
+    """
+    Displays the private user panel for updating profile info and viewing owned articles with pagination.
+    """
     if request.method == 'POST':
         form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user)
         if form.is_valid():
@@ -53,8 +66,10 @@ def user_panel(request):
 
     target_user = get_object_or_404(User, username=request.user.username)
 
+    # Fetch user's own articles sorted by latest
     user_articles = Article.objects.filter(author=target_user).order_by('-created_at')
 
+    # Paginate user articles: 3 items per page
     paginator = Paginator(user_articles, 3)
     current_page = request.GET.get('page', 1)
     page_objects = paginator.get_page(current_page)
@@ -64,10 +79,15 @@ def user_panel(request):
 
 
 def user_public_profile(request, username):
+    """
+    Renders the public profile page of an author along with their published articles.
+    """
     target_user = get_object_or_404(User, username=username)
 
+    # Fetch author's published articles sorted by latest
     user_articles = Article.objects.filter(author=target_user).order_by('-created_at')
 
+    # Paginate author articles: 3 items per page
     paginator = Paginator(user_articles, 3)
     current_page = request.GET.get('page', 1)
     page_objects = paginator.get_page(current_page)
@@ -82,10 +102,14 @@ def user_public_profile(request, username):
 
 @login_required
 def delete_profile_image_ajax(request):
+    """
+    AJAX endpoint to remove the user's profile avatar from storage and reset it to default.
+    """
     if request.method == "POST":
         user = request.user
 
         if user.profile:
+            # Delete file from storage and clear reference
             user.profile.delete(save=False)
             user.profile = None
             user.save()

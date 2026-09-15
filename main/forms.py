@@ -1,7 +1,11 @@
+# Form definitions for capturing contact inquiries with custom Bootstrap styling
 from django import forms
 from .models import ContactMessage
 
 class ContactForm(forms.ModelForm):
+    """
+    Form to handle user feedback and messages with custom Bootstrap styling.
+    """
     class Meta:
         model = ContactMessage
         fields = ['subject', 'email', 'body']

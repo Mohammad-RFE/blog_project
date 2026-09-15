@@ -1,7 +1,11 @@
+# Forms for handling article inputs with custom Bootstrap widgets
 from django import forms
 from .models import Article
 
 class ArticleForm(forms.ModelForm):
+    """
+    ModelForm for Article model with custom UI widget styling.
+    """
     class Meta:
         model = Article
         fields = ['title', 'body', 'cover', 'category', 'tags']

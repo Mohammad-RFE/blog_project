@@ -1,3 +1,4 @@
+# Views handling article listing, details, CRUD, comments, and like actions
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Article, Comment, CommentLike
 from django.db.models import Q
@@ -9,16 +10,18 @@ from django.contrib import messages
 from .forms import ArticleForm
 
 def article_detail(request, slug):
+    """
+    Displays single article details and identifies comments liked by the current user.
+    """
     article = get_object_or_404(Article, slug=slug)
 
+    # Fetch list of comment IDs liked by the logged-in user on this article
     user_liked_comment_ids = []
     if request.user.is_authenticated:
         user_liked_comment_ids = list(
             CommentLike.objects.filter(user=request.user, comment__article=article)
             .values_list('comment_id', flat=True)
         )
-
-
 
     context = {
         'article': article,
@@ -28,13 +31,16 @@ def article_detail(request, slug):
 
 
 def posts_page(request):
+    """
+    Lists articles with search query, tag, or category filters and handles pagination.
+    """
     all_sorted_articles = Article.objects.order_by("-created_at")
 
     search_query = request.GET.get('q')
     tag_slug = request.GET.get('tag')
     category_slug = request.GET.get('category')
 
-
+    # Apply filters based on request query parameters
     if search_query:
         all_sorted_articles = all_sorted_articles.filter(
             Q(title__icontains=search_query) | Q(body__icontains=search_query)
@@ -46,6 +52,7 @@ def posts_page(request):
     elif category_slug:
         all_sorted_articles = all_sorted_articles.filter(category__slug=category_slug)
 
+    # Paginate articles: 4 items per page
     paginator = Paginator(all_sorted_articles, 4)
     current_page = request.GET.get('page', 1)
     page_objects = paginator.get_page(current_page)
@@ -57,9 +64,11 @@ def posts_page(request):
     return render(request, "blog/blog-entries.html", context)
 
 
-
 @login_required
 def add_comment(request, article_id):
+    """
+    Handles submission of new comments or replies for an article.
+    """
     if request.method == 'POST':
         article = get_object_or_404(Article, id=article_id)
         body = request.POST.get('body')
@@ -72,6 +81,7 @@ def add_comment(request, article_id):
                 body=body
             )
 
+            # Check and attach parent comment if this is a reply
             if parent_id and parent_id.strip() != "" and parent_id != "None":
                 parent_comment = get_object_or_404(Comment, id=parent_id)
                 comment.parent = parent_comment
@@ -83,6 +93,9 @@ def add_comment(request, article_id):
 
 @login_required
 def delete_comment(request, comment_id):
+    """
+    Deletes a comment if the requesting user is the owner.
+    """
     comment = get_object_or_404(Comment, id=comment_id)
     if comment.user == request.user:
         comment.delete()
@@ -93,13 +106,16 @@ def delete_comment(request, comment_id):
     return redirect("article detail", slug=comment.article.slug)
 
 
-
 @login_required
 def like_comment_ajax(request, comment_id):
+    """
+    AJAX endpoint to toggle like status on a comment.
+    """
     if request.method == "POST":
         comment = get_object_or_404(Comment, id=comment_id)
         like_exists = CommentLike.objects.filter(comment=comment, user=request.user)
 
+        # Toggle like state
         if like_exists.exists():
             like_exists.delete()
             liked = False
@@ -117,8 +133,12 @@ def like_comment_ajax(request, comment_id):
 
     return JsonResponse({"success": False, "error": "Invalid request method."}, status=400)
 
+
 @login_required
 def create_article(request):
+    """
+    Handles form rendering and saving for creating a new article.
+    """
     if request.method == "POST":
         form = ArticleForm(request.POST, request.FILES)
 
@@ -144,8 +164,12 @@ def create_article(request):
 
 @login_required
 def edit_article(request, article_id):
+    """
+    Handles form rendering and updating an existing article for its author.
+    """
     article = get_object_or_404(Article, id=article_id)
 
+    # Ensure only the author can edit
     if article.author != request.user:
         messages.error(request, "You are not authorized to edit this article.")
         return redirect('all posts')
@@ -168,6 +192,9 @@ def edit_article(request, article_id):
 
 @login_required
 def delete_article_cover_ajax(request, article_id):
+    """
+    AJAX endpoint to remove only the cover image of an article.
+    """
     if request.method == "POST":
         article = get_object_or_404(Article, id=article_id)
 
@@ -184,14 +211,19 @@ def delete_article_cover_ajax(request, article_id):
 
     return JsonResponse({"success": False, "error": "Bad Request"}, status=400)
 
+
 @login_required
 def delete_article_ajax(request, article_id):
+    """
+    AJAX endpoint to permanently delete an article and its cover image.
+    """
     if request.method == "POST":
         article = get_object_or_404(Article, id=article_id)
 
         if article.author != request.user:
             return JsonResponse({"success": False, "error": "You are not authorized to delete this article."}, status=403)
 
+        # Delete image file from media storage
         if article.cover:
             article.cover.delete(save=False)
 
